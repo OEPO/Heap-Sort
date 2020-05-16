@@ -1,0 +1,5 @@
+rm -fr *.o a.out core programa dist build
+mkdir -p build dist
+g++ -g3 -Wall -lm -c main.cpp -o build/main.o
+g++ -g3 -Wall -lm -lm -o dist/programa build/main.o
+rm -fr build
