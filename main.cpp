@@ -5,16 +5,29 @@
 #include <sstream>
 #include <math.h>
 
-
 using namespace std;
 
-class PSU{
+typedef class PSU{
     public:
-        vector<int> RUT;
-        vector<int> PUNTAJE;
+        void setPuntaje(vector<double> puntaje)
+        {
+            puntajes.push_back(puntaje.at(1));
+            ruts.push_back(puntaje.at(0));
+        }
+        int* getRuts_data(){ return ruts.data();}
+        double* getPuntajes_data(){ return puntajes.data();}
+        std::vector<int> getRuts_vector(){ return ruts;}
+        std::vector<double> getvPuntajes_vector(){ return puntajes;}
+        int getSize(){ return puntajes.size();}
+    private:
+        vector<int> ruts;
+        vector<double> puntajes;
 };
+vector<double> obtenerPuntajes(string);
+void participantes();
 
-void heap(int arr[],int arr0[], int n, int i)
+
+void heap(double arr[],int arr0[], int n, int i)
 {
     int largo = i; // inicializa largo como raiz
     int l = 2*i + 1; // izq = 2*i + 1
@@ -40,7 +53,7 @@ void heap(int arr[],int arr0[], int n, int i)
 }
 
 // funcion principal de heap
-void heap_ordenar(int arr[],int arr0[], int n)
+void heap_ordenar(double arr[],int arr0[], int n)
 {
     // armando el heap
     for (int i = n / 2 - 1; i >= 0; i--)
@@ -59,43 +72,81 @@ void heap_ordenar(int arr[],int arr0[], int n)
 }
 
 
-
-
-int main()
+int main(int argc, char** argv) // (            ) -> (int argc, char** argv)
 {
-    PSU psu;
-    ifstream psu_file;
-    psu_file.open("promedio.csv");
+    if (argc > 1)   // Comprueba si hay argumentos en **argv
+    {
+        PSU psu;
+        ifstream psu_file;
 
-    while(psu_file.good()){
-        string rut;
-        string puntaje;
-        int Rut;
-        int Puntaje;
+        std::string archivo(argv[1]);
+        psu_file.open(archivo);
 
-        getline(psu_file, rut, ';');
-        getline(psu_file, puntaje);
-        Puntaje = (int)round(stod(puntaje));
-        Rut = stoi(rut);
+        for(std::string linea;getline(psu_file,linea); )
+        {
+            //std::string rut;
+            //std::string puntaje;
+            //int Rut;
+            //int Puntaje;
 
-        psu.RUT.push_back(Rut);
-        psu.PUNTAJE.push_back(Puntaje);
+            //getline(psu_file, rut, ';');
+            //getline(psu_file, puntaje);
+            if(linea.empty()){ break; }
+            std::vector<double> puntaje = obtenerPuntajes(linea);
+            psu.setPuntaje(puntaje);
+
+            //Puntaje = (int)round(stod(puntaje));
+            //Rut = stoi(rut);
+
+            //psu.RUT.push_back(Rut);
+            //psu.PUNTAJE.push_back(Puntaje);
+        }
+        psu_file.close();
+
+        //int* arr = psu.PUNTAJE.data();
+        double* arr = psu.getPuntajes_data();
+
+        //int n = psu.PUNTAJE.size();
+        int n = psu.getSize();
+
+        //int* arr0 = psu.RUT.data();
+        int* arr0 = psu.getRuts_data();
+
+        heap_ordenar(arr,arr0,n);
+
+        std::ofstream escritura("ordenado.csv");
+        //escritura.open ("ordenado.csv");
+        for (int i = 0; i < n ;i++)
+            escritura << arr0[i] << ";" << (arr[i]) << endl;    // myfile -> escritura
+
+        escritura.close();
     }
 
-    int* arr = psu.PUNTAJE.data();
-    int n = psu.PUNTAJE.size();
-    int* arr0 = psu.RUT.data();
-
-
-    heap_ordenar(arr,arr0, n);
-
-    ofstream myfile;
-    myfile.open ("ordenado.csv");
-    for (int i = 0; i < n ;i++){
-        myfile << arr0[i]<< "," <<arr[i]<< endl;
+    else
+    {
+        std::cout << "\nNo hay argumento para la lectura o el arhivo no existe." << std::endl;
+        return EXIT_FAILURE;
     }
-myfile.close();
 
-return 0;
+    participantes();    // implementar despliegue de participantes
+    return EXIT_SUCCESS;    // return 0 -> return EXIT_SUCCESS
 }
 
+vector<double> obtenerPuntajes(std::string fila) {
+    vector<double> arreglo;
+    std::stringstream ss(fila);
+    std::string item;
+
+    while (std::getline(ss, item, ';')) {
+        double valor = stod(item.c_str());
+        arreglo.push_back(valor);
+    }
+    return arreglo;
+}
+
+void participantes() {
+    std::cout << std::endl << "=== Taller 02 ===" << std::endl;
+    std::cout << std::endl << "Daniela Galleguillos";
+    std::cout << std::endl << "Oscar Peñaloza";
+    std::cout << std::endl << "Edgar Matus" << std::endl;
+}
